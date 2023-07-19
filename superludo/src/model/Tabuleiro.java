@@ -3,9 +3,6 @@ package model;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * Esta classe representa o tabuleiro do jogo de Ludo.
- */
 public class Tabuleiro {
     private static final int TAMANHO_TABULEIRO = 52;
     private static final int TAMANHO_RETA_FINAL = 6;
@@ -20,8 +17,7 @@ public class Tabuleiro {
     private final Tile[] retaFinalAzul;
     private final Tile[] retaFinalVermelha;
 
-    // Mapa de cores para os arrays iniciais
-    private final Map<Cor, Tile[]> iniciosPorCor;
+    private final Map<Cor, Tile[]> iniciosPorCor, retasFinaisPorCor;
 
     public Tabuleiro() {
         this.tabuleiroBasico = new Tile[TAMANHO_TABULEIRO];
@@ -36,12 +32,18 @@ public class Tabuleiro {
         povoaTabuleiro();
         conectaTilesTabuleiro();
 
-        // Preenche o mapa de cores para os arrays iniciais
         this.iniciosPorCor = new HashMap<>();
         this.iniciosPorCor.put(Cor.VERDE, inicioVerde);
         this.iniciosPorCor.put(Cor.AMARELO, inicioAmarelo);
         this.iniciosPorCor.put(Cor.AZUL, inicioAzul);
         this.iniciosPorCor.put(Cor.VERMELHO, inicioVermelho);
+        
+        
+        this.retasFinaisPorCor = new HashMap<>();
+        this.retasFinaisPorCor.put(Cor.VERDE, retaFinalVerde);
+        this.retasFinaisPorCor.put(Cor.AMARELO, retaFinalAmarela);
+        this.retasFinaisPorCor.put(Cor.AZUL, retaFinalAzul);
+        this.retasFinaisPorCor.put(Cor.VERMELHO, retaFinalVermelha);
     }
 
     private void povoaTabuleiro() {
@@ -68,7 +70,7 @@ public class Tabuleiro {
             }
         }
 
-        for (int i = 0; i < TAMANHO_RETA_FINAL - 1; i++) {
+        for (int i = 0; i < TAMANHO_RETA_FINAL; i++) {
             retaFinalVerde[i] = new Tile("retaFinal", i);
             retaFinalAmarela[i] = new Tile("retaFinal", i);
             retaFinalAzul[i] = new Tile("retaFinal", i);
@@ -77,16 +79,12 @@ public class Tabuleiro {
     }
 
     private void conectaTilesTabuleiro() {
-        for (int i = 0; i < 3; i++) {
-            inicioVerde[i].setProximo(inicioVerde[i + 1]);
-            inicioAmarelo[i].setProximo(inicioAmarelo[i + 1]);
-            inicioAzul[i].setProximo(inicioAzul[i + 1]);
-            inicioVermelho[i].setProximo(inicioVermelho[i + 1]);
+        for (int i = 0; i < 4; i++) {
+            inicioVerde[i].setProximo(tabuleiroBasico[Cor.VERDE.getCasaDeSaida()]);
+            inicioAmarelo[i].setProximo(tabuleiroBasico[Cor.AMARELO.getCasaDeSaida()]);
+            inicioAzul[i].setProximo(tabuleiroBasico[Cor.AZUL.getCasaDeSaida()]);
+            inicioVermelho[i].setProximo(tabuleiroBasico[Cor.VERMELHO.getCasaDeSaida()]);
         }
-        inicioVerde[3].setProximo(null);
-        inicioAmarelo[3].setProximo(null);
-        inicioAzul[3].setProximo(null);
-        inicioVermelho[3].setProximo(null);
 
         for(int i = 0; i < TAMANHO_TABULEIRO - 1; i++) {
             tabuleiroBasico[i].setProximo(tabuleiroBasico[i + 1]);
@@ -99,17 +97,6 @@ public class Tabuleiro {
             retaFinalAzul[i].setProximo(retaFinalAzul[i + 1]);
             retaFinalVermelha[i].setProximo(retaFinalVermelha[i + 1]);
         }
-
-
-        tabuleiroBasico[0].setProximo(inicioVerde[0]);
-        tabuleiroBasico[13].setProximo(inicioAmarelo[0]);
-        tabuleiroBasico[26].setProximo(inicioAzul[0]);
-        tabuleiroBasico[39].setProximo(inicioVermelho[0]);
-
-        tabuleiroBasico[8].setProximo(retaFinalVerde[0]);
-        tabuleiroBasico[21].setProximo(retaFinalAmarela[0]);
-        tabuleiroBasico[34].setProximo(retaFinalAzul[0]);
-        tabuleiroBasico[47].setProximo(retaFinalVermelha[0]);
     }
 
     public void soltaPeao(Peao peao) {
@@ -124,15 +111,94 @@ public class Tabuleiro {
         Tile[] inicio = iniciosPorCor.get(cor);
 
         for (int i = 3; i >= 0; i--) {
-            if (inicio[i].isEmpty()) {
+            if (inicio[i].isEmpty() == 0) {
                 inicio[i].adicionaPeao(peao);
                 break;
             }
         }
     }
     
-    public Tile getInicio(Cor cor) {
-        return iniciosPorCor.get(cor)[3];
+    public Tile[] getInicio(Cor cor) {
+        return iniciosPorCor.get(cor);
     }
+    
+    public Tile[] getRetaFinal(Cor cor) {
+        return retasFinaisPorCor.get(cor);
+    }
+    
+    public Tile getNovaPosicao(Tile posicaoAtual, int numeroCasas, Cor cor) {
+    	Tile novaPosicao = posicaoAtual;
+    	
+    	for (int i = 0; i < numeroCasas; i++) {
+    		if (novaPosicao.getIndex() == 50 && cor.equals(Cor.VERDE)) {
+    			novaPosicao = retaFinalVerde[0];
+    			System.out.println(novaPosicao.getTipo());
+    		} else if (novaPosicao.getIndex() == 11 && cor.equals(Cor.AMARELO)) {
+    			novaPosicao = retaFinalAmarela[0];
+    		} else if (novaPosicao.getIndex() == 24 && cor.equals(Cor.AZUL)) {
+    			novaPosicao = retaFinalAzul[0];
+    		} else if (novaPosicao.getIndex() == 37 && cor.equals(Cor.VERMELHO)) {
+    			novaPosicao = retaFinalVermelha[0];
+    		} else {    			
+    		novaPosicao = novaPosicao.getProximo();
+    		}
+    	}
+        
+        int novaPosicaoIndex = novaPosicao.getIndex();
+        
+        
+        if (novaPosicao.getTipo().equals("retaFinal")) {
+        	return getRetaFinal(cor)[novaPosicaoIndex];
+        }
+        return tabuleiroBasico[novaPosicaoIndex % tabuleiroBasico.length];
+    }
+
+
+    public boolean isMovimentoValido(Peao peao, Tile posicaoAtual, int numeroCasas) {
+       
+    	Tile novaPosicao = posicaoAtual;
+    	
+    	if (posicaoAtual.getTipo().equals("inicial") && tabuleiroBasico[peao.getCor().getCasaDeSaida()].possuiPeaoDaMesmaCor(peao.getCor())) {
+    		return false;
+    	}
+    	
+    	if (posicaoAtual.getTipo().equals("retaFinal")) {
+    		for (int i = 0; i < numeroCasas; i++) {
+        		novaPosicao = novaPosicao.getProximo();
+        		
+        		if (novaPosicao == null) {
+        			return false;
+        		}
+        	}
+    	}
+    	
+    	novaPosicao = posicaoAtual;
+    	
+    	for (int i = 0; i < numeroCasas; i++) {
+    		novaPosicao = novaPosicao.getProximo();
+    		if (novaPosicao.isBarreira()) {
+    			return false;
+    		}
+    	}
+    	
+    	
+        
+        return true;
+    }
+
+    public boolean isFinal(Tile posicao, Cor cor) {
+        if (cor == Cor.VERDE && posicao == retaFinalVerde[TAMANHO_RETA_FINAL - 1]) {
+            return true;
+        } else if (cor == Cor.AMARELO && posicao == retaFinalAmarela[TAMANHO_RETA_FINAL - 1]) {
+            return true;
+        } else if (cor == Cor.AZUL && posicao == retaFinalAzul[TAMANHO_RETA_FINAL - 1]) {
+            return true;
+        } else if (cor == Cor.VERMELHO && posicao == retaFinalVermelha[TAMANHO_RETA_FINAL - 1]) {
+            return true;
+        }
+        return false;
+    }
+
+    
 
 }

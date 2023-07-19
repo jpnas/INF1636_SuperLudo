@@ -14,13 +14,26 @@ public class Tile {
         this.indice = indice;
     }
 
-    public boolean isEmpty() {
-        return peoes.isEmpty();
+    public int isEmpty() {
+        if (peoes.size() < 2) {
+        	return 0;
+        } else {
+        	return 1;
+        }
     }
 
     public int getNumeroDePeoes() {
         return peoes.size();
     }
+    
+    public List<Peao> getPeoes() {
+        return this.peoes;
+    }
+
+    public int getIndex() {
+        return this.indice;
+    }
+
 
     public boolean isBarreira() {
         if (tipo.equals("comum") && !peoes.isEmpty()) {
@@ -67,6 +80,14 @@ public class Tile {
     }
 
     public boolean possuiPeaoDeOutraCor(Cor cor) {
+        if (!peoes.isEmpty() && !peoes.get(0).getCor().equals(cor)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean possuiPeaoDaMesmaCor(Cor cor) {
         if (!peoes.isEmpty() && peoes.get(0).getCor().equals(cor)) {
             return true;
         } else {
@@ -74,7 +95,7 @@ public class Tile {
         }
     }
 
-    public Peao primeiroPeao() {
+    public Peao getPrimeiroPeao() {
         if (!peoes.isEmpty()) {
             return peoes.get(0);
         } else {
